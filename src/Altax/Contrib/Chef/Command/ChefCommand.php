@@ -52,6 +52,7 @@ class ChefCommand extends \Altax\Command\Command
         $repo = $config["repo"];
         $dir = isset($config["dir"]) ? $config["dir"] : "/var/chef"; 
         $berks = isset($config["berks"]) ? $config["berks"] : "/opt/chef/embedded/bin/berks"; 
+        $key = isset($config["key"]) ? $config["key"] : "~/.ssh/id_rsa"; 
 
         $target = $input->getArgument("target");
         $runBerks = $input->getOption("berks");
@@ -70,12 +71,18 @@ class ChefCommand extends \Altax\Command\Command
                 $process->run("rpm -ivh $chefRpm", array("user" => "root"));
                 // Install berkself gem
                 $process->run("/opt/chef/embedded/bin/gem install berkshelf --no-rdoc --no-ri", array("user" => "root"));
+                // Copy ssh private key
+                $tmp = "/tmp/".uniqid().".key";
+                $process->put($key, $tmp);
+                $process->run(array(
+                    "cp ${tmp} /root/.ssh/id_rsa",
+                    "chmod 600 /root/.ssh/id_rsa"
+                    ), array("user" => "root"));
 
             }, $target);
 
         } else {
             // Run chef-solo
-
             $task->exec(function($process) use ($dir, $repo, $berks, $runBerks, $noSolo) {
 
                 $node = $process->getNode();
@@ -105,7 +112,6 @@ class ChefCommand extends \Altax\Command\Command
                         "cd $dir",
                         "$berks --path cookbooks"
                         ), array("user" => "root"));
-
                 }
 
                 if (!$noSolo) {
