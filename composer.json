@@ -1,0 +1,24 @@
+{
+  "name": "kohkimakimoto/altax-chef",
+  "description": "Runs chef-solo via altax.",
+  "keywords": ["altax", "plugin", "chef"],
+  "homepage": "https://github.com/kohkimakimoto/altax-chef",
+  "license": "Apache License 2.0",
+  "authors": [
+    {
+      "name": "Kohki Makimoto",
+      "email": "kohki.makimoto@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.4.0"
+  },
+  "require-dev": {
+    "kohkimakimoto/altax": "3.*",
+    "phpunit/phpunit": "3.*"
+  },
+  "minimum-stability": "alpha",
+  "autoload": {
+    "psr-0": { "Altax\\Contrib\\Chef\\": "src/"}
+  }
+}
