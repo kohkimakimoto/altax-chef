@@ -35,8 +35,6 @@ Add the following code your `.altax/config.php` file.
 
 ## Usage
 
-See 
-
     altax chef -h
 
 
