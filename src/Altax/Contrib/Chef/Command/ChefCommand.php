@@ -63,7 +63,7 @@ class ChefCommand extends \Altax\Command\Command
             // Prepare
             $chefRpm = $this->chefRpm;
 
-            $task->exec(function($process) use ($chefRpm, $dir, $repo, $berks, $runBerks, $noSolo) {
+            $task->exec(function($process) use ($key, $chefRpm, $dir, $repo, $berks, $runBerks, $noSolo) {
 
                 // Install git
                 $process->run("yum install -y git", array("user" => "root"));
