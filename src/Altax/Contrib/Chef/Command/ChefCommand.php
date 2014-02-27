@@ -7,7 +7,7 @@ use Symfony\Component\Finder\Finder;
 
 class ChefCommand extends \Altax\Command\Command
 {
-    public $chefRpm = "https://opscode-omnibus-packages.s3.amazonaws.com/el/6/x86_64/chef-11.8.2-1.el6.x86_64.rpm";
+    public $chefRpm = "https://opscode-omnibus-packages.s3.amazonaws.com/el/6/x86_64/chef-11.10.4-1.el6.x86_64.rpm";
 
     protected function configure()
     {
