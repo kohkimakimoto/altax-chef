@@ -69,7 +69,7 @@ class ChefCommand extends \Altax\Command\Command
                 // Install chef
                 $process->run("rpm -ivh $chefRpm", array("user" => "root"));
                 // Install berkself gem
-                $process->run("/opt/chef/embedded/bin/gem install berkshelf  --no-rdoc --no-ri", array("user" => "root"));
+                $process->run("/opt/chef/embedded/bin/gem install berkshelf --no-rdoc --no-ri", array("user" => "root"));
 
             }, $target);
 
@@ -83,9 +83,9 @@ class ChefCommand extends \Altax\Command\Command
                 // Get chef repository
                 $ret = null;
                 if ($process->run("test -d $dir")->isFailed()) {
-                    $ret = $process->run("git clone $repo $dir");
+                    $ret = $process->run("git clone $repo $dir", array("user" => "root"));
                 } else {
-                    $ret = $process->run("git pull", array("cwd" => $dir));
+                    $ret = $process->run("git pull", array("user" => "root", "cwd" => $dir));
                 }
 
                 if ($ret->isFailed()) {
