@@ -65,11 +65,11 @@ class ChefCommand extends \Altax\Command\Command
             $task->exec(function($process) use ($chefRpm, $dir, $repo, $berks, $runBerks, $noSolo) {
 
                 // Install git
-                $process->run("yum install -y git", arary("user" => "root"));
+                $process->run("yum install -y git", array("user" => "root"));
                 // Install chef
-                $process->run("rpm -ivh $chefRpm", arary("user" => "root"));
+                $process->run("rpm -ivh $chefRpm", array("user" => "root"));
                 // Install berkself gem
-                $process->run("/opt/chef/embedded/bin/gem install berkshelf  --no-rdoc --no-ri", arary("user" => "root"));
+                $process->run("/opt/chef/embedded/bin/gem install berkshelf  --no-rdoc --no-ri", array("user" => "root"));
 
             }, $target);
 
