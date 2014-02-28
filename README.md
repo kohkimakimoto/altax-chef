@@ -6,7 +6,7 @@ Runs chef-solo via [altax](https://github.com/kohkimakimoto/altax) and Git.
 
 ## Requirement
 
-Depends on my personal environment.
+I tested the following environments.
 
 * CentOS6
 * PHP5.4
@@ -29,12 +29,12 @@ Add the following code your `.altax/config.php` file.
 
     Task::register("chef", 'Altax\Contrib\Chef\Command\ChefCommand')
     ->config(array(
-        "repo" => "git repository path to store chef repository"
+        "repo" => "git@github.com:your/chef-reposigory.git"
     ))
     ;
 
 ## Usage
 
-    altax chef -h
+    altax chef nodename [nodename...]
 
 
