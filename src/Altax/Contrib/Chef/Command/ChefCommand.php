@@ -58,19 +58,43 @@ class ChefCommand extends \Altax\Command\Command
         $target = $input->getArgument("target");
         $runBerks = $input->getOption("berks");
         $noSolo = $input->getOption("no-solo");
-        $prepare = $input->getOption("prepare");
+        $onlyPrepare = $input->getOption("prepare");
 
-        if ($prepare) {
-            // Prepare
+        $task->exec(function($process) use (
+            $onlyPrepare,
+            $key, 
+            $chefInstallCommand,
+            $dir, 
+            $repo, 
+            $berks, 
+            $runBerks, 
+            $noSolo,
+            $task) {
 
-            $task->exec(function($process) use ($key, $chefInstallCommand, $dir, $repo, $berks, $runBerks, $noSolo) {
+            $node = $process->getNode();
 
+            //
+            // chef chef installation
+            //
+            $prepare = $onlyPrepare;
+
+            if ($process->run("test -e /opt/chef/bin/chef-solo")->isFailed()) {
+                $task->writeln("<comment>Run preparing. Not found chef-solo.<comment>");
+                $prepare = true;
+            }
+
+            //
+            // prepare process
+            //
+            if ($prepare) {
                 // Install git
                 $process->run("yum install -y git", array("user" => "root"));
                 // Install chef
                 $process->run($chefInstallCommand, array("user" => "root"));
                 // Install berkself gem
-                $process->run("/opt/chef/embedded/bin/gem install berkshelf --no-rdoc --no-ri", array("user" => "root"));
+                if ($process->run("test -e /opt/chef/embedded/bin/berks")->isFailed()) {
+                    $process->run("/opt/chef/embedded/bin/gem install berkshelf --no-rdoc --no-ri", array("user" => "root"));
+                }
                 // Copy ssh private key
                 $tmp = "/tmp/".uniqid().".key";
                 $process->put($key, $tmp);
@@ -79,54 +103,52 @@ class ChefCommand extends \Altax\Command\Command
                     "chmod 600 /root/.ssh/id_rsa"
                     ), array("user" => "root"));
 
-            }, $target);
-
-        } else {
-            // Run chef-solo
-            $task->exec(function($process) use ($dir, $repo, $berks, $runBerks, $noSolo) {
-
-                $node = $process->getNode();
-
-                // Get chef repository
-                $ret = null;
-                if ($process->run("test -d $dir")->isFailed()) {
-                    $ret = $process->run("git clone $repo $dir", array("user" => "root"));
-                } else {
-                    $ret = $process->run("git pull", array("user" => "root", "cwd" => $dir));
+                if ($onlyPrepare) {
+                    return;
                 }
+            }
 
-                if ($ret->isFailed()) {
-                    throw new \RuntimeException("Got a error.");
-                }
+            //
+            // provisioning process
+            //
+            // Get chef repository
+            $ret = null;
+            if ($process->run("test -d $dir")->isFailed()) {
+                $ret = $process->run("git clone $repo $dir", array("user" => "root"));
+            } else {
+                $ret = $process->run("git pull", array("user" => "root", "cwd" => $dir));
+            }
 
-                // Check existing the cookbooks directory
-                if ($process->run("test -d $dir/cookbooks")->isFailed()) {
-                    $runBerks = true;
-                }
+            if ($ret->isFailed()) {
+                throw new \RuntimeException("Got a error.");
+            }
 
-                if ($runBerks) {
-                    // Run berkself
-                    // "unset" Prevent to load system wide ruby and gems.
-                    $process->run(array(
-                        "unset GEM_HOME && unset GEM_PATH",
-                        "cd $dir",
-                        "$berks --path cookbooks"
-                        ), array("user" => "root"));
-                }
+            // Check existing the cookbooks directory
+            if ($process->run("test -d $dir/cookbooks")->isFailed()) {
+                $runBerks = true;
+            }
 
-                if (!$noSolo) {
-                    // Run chef-solo
-                    $nodeName = $node->getName();
-                    $process->run(array(
-                        "unset GEM_HOME && unset GEM_PATH",
-                        "cd $dir",
-                        "chef-solo -c $dir/config/solo.rb -j $dir/nodes/${nodeName}.json"
-                        ), array("user" => "root"));
-                }
+            if ($runBerks) {
+                // Run berkself
+                // "unset" Prevent to load system wide ruby and gems.
+                $process->run(array(
+                    "unset GEM_HOME && unset GEM_PATH",
+                    "cd $dir",
+                    "$berks --path cookbooks"
+                    ), array("user" => "root"));
+            }
 
-            }, $target);
+            if (!$noSolo) {
+                // Run chef-solo
+                $nodeName = $node->getName();
+                $process->run(array(
+                    "unset GEM_HOME && unset GEM_PATH",
+                    "cd $dir",
+                    "chef-solo -c $dir/config/solo.rb -j $dir/nodes/${nodeName}.json"
+                    ), array("user" => "root"));
+            }
 
-        }
+        }, $target);
 
 
     }
