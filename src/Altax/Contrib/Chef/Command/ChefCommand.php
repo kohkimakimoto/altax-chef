@@ -153,11 +153,13 @@ class ChefCommand extends \Altax\Command\Command
 
             if (!$noSolo) {
                 // Run chef-solo
-                $nodeName = $node->getName();
+                $nodeName = $process->get;
+
+
                 $process->run(array(
                     "unset GEM_HOME && unset GEM_PATH",
                     "cd $dir",
-                    "chef-solo -c $dir/config/solo.rb -j $dir/nodes/${nodeName}.json"
+                    "chef-solo -c $dir/config/solo.rb -j $dir/nodes/\$HOSTNAME.json"
                     ), array("user" => "root"));
             }
 

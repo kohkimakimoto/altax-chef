@@ -39,7 +39,7 @@ Installs chef package to remote node.
 
     altax chef nodename [nodename...] --prepare
 
-Runs chef-solo using run_list `nodes/nodename.json`
+Runs chef-solo using run_list `nodes/${HOSTNAME}.json`
 
     altax chef nodename [nodename...]
 
