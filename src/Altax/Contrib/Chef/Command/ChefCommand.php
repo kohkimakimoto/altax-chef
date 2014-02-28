@@ -79,7 +79,7 @@ class ChefCommand extends \Altax\Command\Command
             $prepare = $onlyPrepare;
 
             if ($process->run("test -e /opt/chef/bin/chef-solo")->isFailed()) {
-                $task->writeln("<comment>Run preparing. Not found chef-solo.<comment>");
+                $task->writeln("Run preparing. Not found chef-solo.");
                 $prepare = true;
             }
 
