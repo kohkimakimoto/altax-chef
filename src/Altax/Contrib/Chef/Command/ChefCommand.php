@@ -120,7 +120,7 @@ class ChefCommand extends \Altax\Command\Command
                 $ret = $process->run(array(
                     "git clone $repo $dir", 
                     "cd $dir", 
-                    "cd checkout $branch"
+                    "git checkout $branch"
                     ), 
                     array("user" => "root")
                 );
