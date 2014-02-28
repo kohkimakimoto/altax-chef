@@ -154,9 +154,6 @@ class ChefCommand extends \Altax\Command\Command
 
             if (!$noSolo) {
                 // Run chef-solo
-                $nodeName = $process->get;
-
-
                 $process->run(array(
                     "unset GEM_HOME && unset GEM_PATH",
                     "cd $dir",
