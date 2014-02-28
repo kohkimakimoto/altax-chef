@@ -126,7 +126,8 @@ class ChefCommand extends \Altax\Command\Command
                 );
             } else {
                 $ret = $process->run(array(
-                    "git pull"
+                    "git fetch origin"
+                    "git checkout $branch"
                     ), 
                     array("user" => "root", "cwd" => $dir)
                 );
