@@ -100,7 +100,8 @@ class ChefCommand extends \Altax\Command\Command
                 $process->put($key, $tmp);
                 $process->run(array(
                     "cp ${tmp} /root/.ssh/id_rsa",
-                    "chmod 600 /root/.ssh/id_rsa"
+                    "chmod 600 /root/.ssh/id_rsa",
+                    "rm ${tmp}"
                     ), array("user" => "root"));
 
                 if ($onlyPrepare) {
