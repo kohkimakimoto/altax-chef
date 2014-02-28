@@ -7,7 +7,7 @@ use Symfony\Component\Finder\Finder;
 
 class ChefCommand extends \Altax\Command\Command
 {
-    public $chefRpm = "https://opscode-omnibus-packages.s3.amazonaws.com/el/6/x86_64/chef-11.10.4-1.el6.x86_64.rpm";
+    const CHEF_INSTALL_COMMAND = "curl -L https://www.opscode.com/chef/install.sh | bash";
 
     protected function configure()
     {
@@ -53,6 +53,7 @@ class ChefCommand extends \Altax\Command\Command
         $dir = isset($config["dir"]) ? $config["dir"] : "/var/chef"; 
         $berks = isset($config["berks"]) ? $config["berks"] : "/opt/chef/embedded/bin/berks"; 
         $key = isset($config["key"]) ? $config["key"] : "~/.ssh/id_rsa"; 
+        $chefInstallCommand = isset($config["chef_install_command"]) ? $config["chef_install_command"] : self::CHEF_INSTALL_COMMAND; 
 
         $target = $input->getArgument("target");
         $runBerks = $input->getOption("berks");
@@ -61,14 +62,13 @@ class ChefCommand extends \Altax\Command\Command
 
         if ($prepare) {
             // Prepare
-            $chefRpm = $this->chefRpm;
 
-            $task->exec(function($process) use ($key, $chefRpm, $dir, $repo, $berks, $runBerks, $noSolo) {
+            $task->exec(function($process) use ($key, $chefInstallCommand, $dir, $repo, $berks, $runBerks, $noSolo) {
 
                 // Install git
                 $process->run("yum install -y git", array("user" => "root"));
                 // Install chef
-                $process->run("rpm -ivh $chefRpm", array("user" => "root"));
+                $process->run($chefInstallCommand, array("user" => "root"));
                 // Install berkself gem
                 $process->run("/opt/chef/embedded/bin/gem install berkshelf --no-rdoc --no-ri", array("user" => "root"));
                 // Copy ssh private key
