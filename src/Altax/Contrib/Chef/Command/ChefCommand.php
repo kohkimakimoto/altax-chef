@@ -50,6 +50,7 @@ class ChefCommand extends \Altax\Command\Command
         }
 
         $repo = $config["repo"];
+        $branch = isset($config["branch"]) ? $config["branch"] : "master"; 
         $dir = isset($config["dir"]) ? $config["dir"] : "/var/chef"; 
         $berks = isset($config["berks"]) ? $config["berks"] : "/opt/chef/embedded/bin/berks"; 
         $key = isset($config["key"]) ? $config["key"] : getenv("HOME")."/.ssh/id_rsa"; 
@@ -64,7 +65,8 @@ class ChefCommand extends \Altax\Command\Command
             $onlyPrepare,
             $key, 
             $chefInstallCommand,
-            $dir, 
+            $dir,
+            $branch,
             $repo, 
             $berks, 
             $runBerks, 
@@ -115,9 +117,19 @@ class ChefCommand extends \Altax\Command\Command
             // Get chef repository
             $ret = null;
             if ($process->run("test -d $dir")->isFailed()) {
-                $ret = $process->run("git clone $repo $dir", array("user" => "root"));
+                $ret = $process->run(array(
+                    "git clone $repo $dir", 
+                    "cd $dir", 
+                    "cd checkout $branch"
+                    ), 
+                    array("user" => "root")
+                );
             } else {
-                $ret = $process->run("git pull", array("user" => "root", "cwd" => $dir));
+                $ret = $process->run(array(
+                    "git pull"
+                    ), 
+                    array("user" => "root", "cwd" => $dir)
+                );
             }
 
             if ($ret->isFailed()) {
