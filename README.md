@@ -37,9 +37,9 @@ Add the following code your `.altax/config.php` file.
 
 Installs chef package to remote node.
 
-    altax chef nodename [nodename...] --prepare
+    altax chef node [node...] --prepare
 
 Runs chef-solo using run_list `nodes/${HOSTNAME}.json`
 
-    altax chef nodename [nodename...]
+    altax chef node [node...]
 
