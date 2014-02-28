@@ -6,7 +6,7 @@ Runs chef-solo via [altax](https://github.com/kohkimakimoto/altax) and Git.
 
 ## Requirement
 
-I tested the following environments.
+I tested it on the following environments.
 
 * CentOS6
 * PHP5.4
