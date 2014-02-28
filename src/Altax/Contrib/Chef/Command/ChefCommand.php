@@ -52,7 +52,7 @@ class ChefCommand extends \Altax\Command\Command
         $repo = $config["repo"];
         $dir = isset($config["dir"]) ? $config["dir"] : "/var/chef"; 
         $berks = isset($config["berks"]) ? $config["berks"] : "/opt/chef/embedded/bin/berks"; 
-        $key = isset($config["key"]) ? $config["key"] : "~/.ssh/id_rsa"; 
+        $key = isset($config["key"]) ? $config["key"] : getenv("HOME")."/.ssh/id_rsa"; 
         $chefInstallCommand = isset($config["chef_install_command"]) ? $config["chef_install_command"] : self::CHEF_INSTALL_COMMAND; 
 
         $target = $input->getArgument("target");
