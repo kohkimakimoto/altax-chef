@@ -17,7 +17,7 @@
     "kohkimakimoto/altax": "3.*",
     "phpunit/phpunit": "3.*"
   },
-  "minimum-stability": "alpha",
+  "minimum-stability": "dev",
   "autoload": {
     "psr-0": { "Altax\\Contrib\\Chef\\": "src/"}
   }
