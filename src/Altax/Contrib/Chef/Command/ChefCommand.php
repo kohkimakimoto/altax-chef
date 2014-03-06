@@ -31,6 +31,12 @@ class ChefCommand extends \Altax\Command\Command
                 'Do not run chef-solo.'
             )
             ->addOption(
+                'only-solo',
+                null,
+                InputOption::VALUE_NONE,
+                'Only run chef-solo.'
+            )
+            ->addOption(
                 'prepare',
                 null,
                 InputOption::VALUE_NONE,
@@ -60,6 +66,7 @@ class ChefCommand extends \Altax\Command\Command
         $runBerks = $input->getOption("berks");
         $noSolo = $input->getOption("no-solo");
         $onlyPrepare = $input->getOption("prepare");
+        $onlySolo = $input->getOption("only-solo");
 
         $task->exec(function($process) use (
             $onlyPrepare,
@@ -71,6 +78,7 @@ class ChefCommand extends \Altax\Command\Command
             $berks, 
             $runBerks, 
             $noSolo,
+            $onlySolo,
             $task) {
 
             $node = $process->getNode();
@@ -115,41 +123,44 @@ class ChefCommand extends \Altax\Command\Command
             // provisioning process
             //
             // Get chef repository
-            $ret = null;
-            if ($process->run("test -d $dir")->isFailed()) {
-                $ret = $process->run(array(
-                    "git clone $repo $dir", 
-                    "cd $dir", 
-                    "git checkout $branch"
-                    ), 
-                    array("user" => "root")
-                );
-            } else {
-                $ret = $process->run(array(
-                    "git pull"
-                    ), 
-                    array("user" => "root", "cwd" => $dir)
-                );
+            if (!$onlySolo) {
+                $ret = null;
+                if ($process->run("test -d $dir")->isFailed()) {
+                    $ret = $process->run(array(
+                        "git clone $repo $dir", 
+                        "cd $dir", 
+                        "git checkout $branch"
+                        ), 
+                        array("user" => "root")
+                    );
+                } else {
+                    $ret = $process->run(array(
+                        "git pull"
+                        ), 
+                        array("user" => "root", "cwd" => $dir)
+                    );
+                }
+
+                if ($ret->isFailed()) {
+                    throw new \RuntimeException("Got a error.");
+                }
+
+                // Check existing the cookbooks directory
+                if ($process->run("test -d $dir/cookbooks")->isFailed()) {
+                    $runBerks = true;
+                }
+
+                if ($runBerks) {
+                    // Run berkself
+                    // "unset" Prevent to load system wide ruby and gems.
+                    $process->run(array(
+                        "unset GEM_HOME && unset GEM_PATH",
+                        "cd $dir",
+                        "$berks --path cookbooks"
+                        ), array("user" => "root"));
+                }
             }
 
-            if ($ret->isFailed()) {
-                throw new \RuntimeException("Got a error.");
-            }
-
-            // Check existing the cookbooks directory
-            if ($process->run("test -d $dir/cookbooks")->isFailed()) {
-                $runBerks = true;
-            }
-
-            if ($runBerks) {
-                // Run berkself
-                // "unset" Prevent to load system wide ruby and gems.
-                $process->run(array(
-                    "unset GEM_HOME && unset GEM_PATH",
-                    "cd $dir",
-                    "$berks --path cookbooks"
-                    ), array("user" => "root"));
-            }
 
             if (!$noSolo) {
                 // Run chef-solo
